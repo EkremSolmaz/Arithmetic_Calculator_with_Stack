@@ -3,7 +3,7 @@
 
 #define SIZE 100
 
-typedef struct STACK
+typedef struct
 {
     int top;
     char st[SIZE];
@@ -15,13 +15,16 @@ typedef struct STACK
 
 
 
-//Char değerleri icin stack fonlsiyonlari
+//Stack functions for stack operations with chars
 
 void Initialize(STACK *s)
 {
-    s->top = 0;
-    s->topInt = 0;
+        s->top = 0;
+        s->topInt = 0;
+
 }
+
+
 
 int IsEmpty(STACK s)
 {
@@ -74,8 +77,40 @@ char WhatNext(STACK *s)
     }
 }
 
+void DisplayStack(STACK *s)
+{
+    if(IsEmpty(*s)){
+        printf("Empty");
+    }
+    else{
 
-// Integer değerleri icin stack fonsiyonlari
+        //Second stack to not lose data while printing
+        STACK * temp;
+        temp =(STACK*) malloc(sizeof(STACK));
+        Initialize(temp);
+        char c;
+
+        while(!IsEmpty(*s)){
+            c = Pop(s);
+
+            Push(temp, c);
+        }
+
+        while(!IsEmpty(*temp)){
+            c = Pop(temp);
+            printf("%c ",c);
+            Push(s, c);
+        }
+
+
+
+    }
+}
+
+
+
+
+// Stack functions for stack operations with integers
 
 int IsEmptyInt(STACK s)
 {
@@ -129,9 +164,41 @@ int WhatNextInt(STACK *s)
 }
 
 
+void DisplayStackInt(STACK *s)
+{
+    if(IsEmptyInt(*s)){
+        printf("Empty");
+    }
+    else{
+
+        //Second stack to not lose data while printing
+        STACK * temp;
+        temp = (STACK*) malloc(sizeof(STACK));
+        Initialize(temp);
+        int c;
+
+        while(!IsEmptyInt(*s)){
+            c = PopInt(s);
+
+            PushInt(temp, c);
+        }
+
+        while(!IsEmptyInt(*temp)){
+            c = PopInt(temp);
+            printf("%d ",c);
+            PushInt(s, c);
+        }
+
+
+
+    }
+}
+
+
+
 int Precedence(char c)
 {
-    printf("\nOperator : %c\n", c);
+    //printf("\nOperator : %c\n", c);
 
     if(c == '+' || c == '-'){
         return 1;
@@ -167,19 +234,19 @@ char * ToPostfix(char infix[])
         if(isalpha(c) || isdigit(c)){
             postfix[p++] = c;
             while(infix[i+1] != ' '){
-                printf("%c to postfix.\n", infix[i]);
+                //printf("%c to postfix.\n", infix[i]);
                 postfix[p++] = infix[++i];
             }
             postfix[p++] = ' ';
-            printf("%c to postfix.\n", c);
+            //printf("%c to postfix.\n", c);
         }
         else if(c == '('){
             Push(stack, c);
-            printf("%c pushed.\n", c);
+            //printf("%c pushed.\n", c);
         }
         else if(c == ')'){
             while(!IsEmpty(*stack) && WhatNext(stack) != '('){
-                printf("%c to postfix.\n", WhatNext(stack));
+                //printf("%c to postfix.\n", WhatNext(stack));
                 postfix[p++] = Pop(stack);
                 postfix[p++] = ' ';
 
@@ -189,26 +256,31 @@ char * ToPostfix(char infix[])
                 return -1;
             }
             else{
-                printf("%c Popped from stack to nothing.\n", WhatNext(stack));
+                //printf("%c Popped from stack to nothing.\n", WhatNext(stack));
                 Pop(stack);
 
             }
         }
         else{
             while(!IsEmpty(*stack) && Precedence(c) <= Precedence(WhatNext(stack))){
-                printf("%c to postfix.\n", WhatNext(stack));
+                //printf("%c to postfix.\n", WhatNext(stack));
                 postfix[p++] = Pop(stack);
                 postfix[p++] = ' ';
 
                 }
                 Push(stack, c);
-                printf("%c pushed.\n", c);
+                //printf("%c pushed.\n", c);
         }
 
 
         i += 2;
         c = infix[i];
-        printf("c = %c\n", c);
+        //printf("c = %c\n", c);
+
+        printf("Postfix: %.*s \tStack:", p, postfix);
+        DisplayStack(stack);
+        printf("\n");
+
 
 
     }
@@ -216,7 +288,7 @@ char * ToPostfix(char infix[])
     //Infix string bittigi icin her seyi pop ediyoruz.
 
     while(!IsEmpty(*stack)){
-        printf("%c to postfix.\n", WhatNext(stack));
+        //printf("%c to postfix.\n", WhatNext(stack));
         postfix[p++] = Pop(stack);
         postfix[p++] = ' ';
 
@@ -233,20 +305,20 @@ char * ToPostfix(char infix[])
 int SolvePostfix(char postfix[], int alphabet[])
 {
 
-    //islemleri yapmak icin kullanacagım yıgın.
+    //Stack needed to solve the operation in postfix form
 
     STACK * solveStack;
     solveStack = (STACK*) malloc(sizeof(STACK));
     Initialize(solveStack);
 
-    //postfix ifadede ilerlemek icin kullanacagız.
+    //to travel in postfix string
     int p = 0;
     char c = postfix[p];
 
     char integer[10];
     int digitCount = 0;
 
-    //islemler icin kullanacagım int degıskenler
+    //variables to use when doing operations
     int x, y;
 
 
@@ -261,39 +333,39 @@ int SolvePostfix(char postfix[], int alphabet[])
             }
             integer[digitCount++] = c;
             PushInt(solveStack, atoi(integer));
-            printf("%d pushed to stack\n", atoi(integer));
+            //printf("%d pushed to stack\n", atoi(integer));
             memset(integer, 0, 9);
             digitCount = 0;
         }
         else if(isalpha(c)){
             PushInt(solveStack, alphabet[c - 97]);
-            printf("%c = %d pushed to stack\n", c, alphabet[c-97]);
+            //printf("%c = %d pushed to stack\n", c, alphabet[c-97]);
         }
         else{
             y = PopInt(solveStack);
             x = PopInt(solveStack);
-            printf("%d and %d popped\n", x, y);
+            //printf("%d and %d popped\n", x, y);
 
             switch(c){
 
             case '+':
                 PushInt(solveStack, x+y);
-                printf("%d pushed to stack\n", x+y);
+                //printf("%d pushed to stack\n", x+y);
                 break;
 
             case '-':
                 PushInt(solveStack, x-y);
-                printf("%d pushed to stack\n", x-y);
+                //printf("%d pushed to stack\n", x-y);
                 break;
 
             case '*':
                 PushInt(solveStack, x*y);
-                printf("%d pushed to stack\n", x*y);
+                //printf("%d pushed to stack\n", x*y);
                 break;
 
             case '/':
                 PushInt(solveStack, x/y);
-                printf("%d pushed to stack\n", x/y);
+                //printf("%d pushed to stack\n", x/y);
                 break;
 
 
@@ -302,6 +374,13 @@ int SolvePostfix(char postfix[], int alphabet[])
 
         p += 2;
         c = postfix[p];
+
+
+        printf("Stack: ");
+        DisplayStackInt(solveStack);
+        printf("\n");
+
+
     }
 
 
@@ -316,88 +395,12 @@ int main()
 
 
 
-/*
-    char op[100];
-    printf("Operation :\n");
-    gets(op);
-    printf("\n");
-    puts(op);
-
-    strcpy(op, ToPostfix(op));
-
-    printf("\n");
-    puts(op);
-*/
-
-/*
-    char op[100] = "22 37 41 + * ;";
-
-    int res = SolvePostfix(op);
-    printf("\nResult : %d", res);
-
-*/
-
-/*
-    char op[100]= "13 * ( 13 - 7 ) / 2 ;";
-
-
-    printf("Operation :\n");
-    gets(op);
-    printf("\n");
-
-    puts(op);
-
-    strcpy(op, ToPostfix(op));
-    printf("\n");
-    puts(op);
-
-    int res = SolvePostfix(op);
-    printf("\nResult : %d", res);
-
-
-*/
-
-/*
-    int alphabet[26] = {0};
-
-
-    //a
-
-    char operation[100] = "a = 3 * ( 5 + 6 ) ;";
-    char rightSide[100];
-    memcpy(rightSide, &operation[4], 95);
-
-    char postfix[100];
-    strcpy(postfix, ToPostfix(rightSide));
-
-    alphabet[operation[0] - 97] = SolvePostfix(postfix, alphabet);
-
-    printf("\n%c = %d", operation[0], alphabet[operation[0] - 97]);
-
-
-    //b
-
-    char operation2[100] = "b = 3 + a * 2 ;";
-    char rightSide2[100];
-    memcpy(rightSide2, &operation2[4], 95);
-
-    char postfix2[100];
-    strcpy(postfix2, ToPostfix(rightSide2));
-
-    alphabet[operation2[0] - 97] = SolvePostfix(postfix2, alphabet);
-
-     printf("\n%c = %d", operation2[0], alphabet[operation2[0]- 97]);
-
-
-*/
-
-
     int alphabet[26] = {NULL};
 
 
-
+    //Input file name
     FILE *fr;
-    fr = fopen("ops.txt", "r");
+    fr = fopen("input.txt", "r");
 
 
     int i = 0;
@@ -408,14 +411,20 @@ int main()
 
 
 
+        printf("\nInfix operation:");
+        puts(line);
         memcpy(rightSide, &line[4], 95);
+
+        printf("\n\nInfix to Postfix:\n\n");
+
         strcpy(postfix, ToPostfix(rightSide));
 
-        alphabet[line[0] - 97] = SolvePostfix(postfix, alphabet);
-
-        puts(line);
-        puts(rightSide);
+        printf("\n\nPostfix Final Form:");
         puts(postfix);
+
+        printf("\n\nSolving postfix:\n\n");
+
+        alphabet[line[0] - 97] = SolvePostfix(postfix, alphabet);
 
 
         printf("\n%c = %d", line[0], alphabet[line[0]- 97]);
@@ -443,12 +452,6 @@ int main()
         }
 
     }
-
-
-
-
-
-
 
 
 
